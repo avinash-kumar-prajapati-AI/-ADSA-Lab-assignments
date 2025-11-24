@@ -5,115 +5,86 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Node
+typedef struct Node
 {
     int data;
-    struct Node *left;
-    struct Node *right;
-};
+    struct Node *left, *right;
+} Node;
 
-struct Node *createNode(int data)
+Node *newNode(int data)
 {
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+    Node *n = (Node *)malloc(sizeof(Node));
+    n->data = data;
+    n->left = n->right = NULL;
+    return n;
 }
 
-struct Node *insert(struct Node *root, int data)
+Node *insert(Node *root, int data)
 {
-    if (root == NULL)
-    {
-        return createNode(data);
-    }
+    if (!root)
+        return newNode(data);
     if (data < root->data)
-    {
         root->left = insert(root->left, data);
-    }
     else
-    {
         root->right = insert(root->right, data);
-    }
     return root;
 }
 
-void kthSmallestUtil(struct Node *root, int k, int *count, int *result)
+// k-th Smallest
+void kthSmallestUtil(Node *root, int k, int *c, int *res)
 {
-    if (root == NULL || *count >= k)
-    {
+    if (!root || *c >= k)
         return;
-    }
-    kthSmallestUtil(root->left, k, count, result);
-    (*count)++;
-    if (*count == k)
-    {
-        *result = root->data;
-        return;
-    }
-    kthSmallestUtil(root->right, k, count, result);
+    kthSmallestUtil(root->left, k, c, res);
+    if (++(*c) == k)
+        *res = root->data;
+    kthSmallestUtil(root->right, k, c, res);
 }
 
-int kthSmallest(struct Node *root, int k)
+int kthSmallest(Node *root, int k)
 {
-    int count = 0;
-    int result = -1;
+    int count = 0, result = -1;
     kthSmallestUtil(root, k, &count, &result);
     return result;
 }
 
-void kthLargestUtil(struct Node *root, int k, int *count, int *result)
+// k-th Largest
+void kthLargestUtil(Node *root, int k, int *c, int *res)
 {
-    if (root == NULL || *count >= k)
-    {
+    if (!root || *c >= k)
         return;
-    }
-    kthLargestUtil(root->right, k, count, result);
-    (*count)++;
-    if (*count == k)
-    {
-        *result = root->data;
-        return;
-    }
-    kthLargestUtil(root->left, k, count, result);
+    kthLargestUtil(root->right, k, c, res);
+    if (++(*c) == k)
+        *res = root->data;
+    kthLargestUtil(root->left, k, c, res);
 }
 
-int kthLargest(struct Node *root, int k)
+int kthLargest(Node *root, int k)
 {
-    int count = 0;
-    int result = -1;
+    int count = 0, result = -1;
     kthLargestUtil(root, k, &count, &result);
     return result;
 }
 
 int main()
 {
-    struct Node *root = NULL;
+    Node *root = NULL;
     int n, data, k;
 
-    printf("Enter the number of nodes to insert: ");
+    printf("Enter number of nodes: ");
     scanf("%d", &n);
-    for (int i = 0; i < n; i++)
+
+    while (n--)
     {
-        printf("Enter value for node %d: ", i + 1);
         scanf("%d", &data);
         root = insert(root, data);
     }
 
-    printf("Enter the value of k: ");
+    printf("Enter k: ");
     scanf("%d", &k);
 
-    int kth_smallest = kthSmallest(root, k);
-    if (kth_smallest != -1)
-        printf("The %d-th smallest element is: %d\n", k, kth_smallest);
-    else
-        printf("The tree has less than %d elements.\n", k);
-
-    int kth_largest = kthLargest(root, k);
-    if (kth_largest != -1)
-        printf("The %d-th largest element is: %d\n", k, kth_largest);
-    else
-        printf("The tree has less than %d elements.\n", k);
+    printf("%d-th smallest: %d\n", k, kthSmallest(root, k));
+    printf("%d-th largest: %d\n", k, kthLargest(root, k));
 
     return 0;
 }

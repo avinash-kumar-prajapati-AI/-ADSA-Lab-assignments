@@ -3,50 +3,52 @@
 // b) Total number of leaf nodes
 #include <stdio.h>
 #include <stdlib.h>
-struct Node
+
+typedef struct Node
 {
     int data;
-    struct Node *left;
-    struct Node *right;
-};
-int height(struct Node *node)
+    struct Node *left, *right;
+} Node;
+
+// Create node
+Node *newNode(int data)
 {
-    if (node == NULL)
-        return 0;
-    int leftHeight = height(node->left);
-    int rightHeight = height(node->right);
-    return (leftHeight > rightHeight ? leftHeight : rightHeight) + 1;
+    Node *n = (Node *)malloc(sizeof(Node));
+    n->data = data;
+    n->left = n->right = NULL;
+    return n;
 }
-int countLeafNodes(struct Node *node)
+
+// Height of tree
+int height(Node *root)
 {
-    if (node == NULL)
+    if (!root)
         return 0;
-    if (node->left == NULL && node->right == NULL)
+    int l = height(root->left), r = height(root->right);
+    return (l > r ? l : r) + 1;
+}
+
+// Count leaf nodes
+int leafCount(Node *root)
+{
+    if (!root)
+        return 0;
+    if (!root->left && !root->right)
         return 1;
-    return countLeafNodes(node->left) + countLeafNodes(node->right);
+    return leafCount(root->left) + leafCount(root->right);
 }
-struct Node *createNode(int data)
-{
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
-}
+
 int main()
 {
-    struct Node *root = createNode(1);
-    root->left = createNode(2);
-    root->right = createNode(3);
-    root->left->left = createNode(4);
-    root->left->right = createNode(5);
-    root->right->right = createNode(6);
+    Node *root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->left->right = newNode(5);
+    root->right->right = newNode(6);
 
-    int treeHeight = height(root);
-    int leafCount = countLeafNodes(root);
-
-    printf("Height of the tree: %d\n", treeHeight);
-    printf("Total number of leaf nodes: %d\n", leafCount);
+    printf("Height of the tree: %d\n", height(root));
+    printf("Total number of leaf nodes: %d\n", leafCount(root));
 
     return 0;
 }

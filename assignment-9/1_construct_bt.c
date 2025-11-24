@@ -1,147 +1,98 @@
-// 1. Write a program to construct a binary tree using user input (level-order insertion).
-// Perform preorder, inorder, and postorder traversals.
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdbool.h>
 
-struct Node
+typedef struct Node
 {
     int data;
-    struct Node *left;
-    struct Node *right;
-};
+    struct Node *left, *right;
+} Node;
 
-struct Node *createNode(int data)
+Node *newNode(int data)
 {
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+    Node *n = (Node *)malloc(sizeof(Node));
+    n->data = data;
+    n->left = n->right = NULL;
+    return n;
 }
 
-struct QueueNode
-{
-    struct Node *treeNode;
-    struct QueueNode *next;
-};
+Node *queue[100];
+int front = 0, rear = 0;
 
-struct Queue
-{
-    struct QueueNode *front;
-    struct QueueNode *rear;
-};
-struct Queue *createQueue()
-{
-    struct Queue *queue = (struct Queue *)malloc(sizeof(struct Queue));
-    queue->front = NULL;
-    queue->rear = NULL;
-    return queue;
-}
-bool isQueueEmpty(struct Queue *queue)
-{
-    return queue->front == NULL;
-}
-void enqueue(struct Queue *queue, struct Node *treeNode)
-{
-    struct QueueNode *newQueueNode = (struct QueueNode *)malloc(sizeof(struct QueueNode));
-    newQueueNode->treeNode = treeNode;
-    newQueueNode->next = NULL;
-    if (queue->rear)
-    {
-        queue->rear->next = newQueueNode;
-    }
-    queue->rear = newQueueNode;
-    if (!queue->front)
-    {
-        queue->front = newQueueNode;
-    }
-}
-struct Node *dequeue(struct Queue *queue)
-{
-    if (isQueueEmpty(queue))
-    {
-        return NULL;
-    }
-    struct QueueNode *temp = queue->front;
-    struct Node *treeNode = temp->treeNode;
-    queue->front = queue->front->next;
-    if (!queue->front)
-    {
-        queue->rear = NULL;
-    }
-    free(temp);
-    return treeNode;
-}
-struct Node *constructBinaryTree()
+void enqueue(Node *n) { queue[rear++] = n; }
+Node *dequeue() { return queue[front++]; }
+int isEmpty() { return front == rear; }
+
+Node *constructTree()
 {
     int data;
-    printf("Enter root node data (-1 for no node): ");
+    printf("Enter root (-1 for no node): ");
     scanf("%d", &data);
     if (data == -1)
-    {
         return NULL;
-    }
-    struct Node *root = createNode(data);
-    struct Queue *queue = createQueue();
-    enqueue(queue, root);
-    while (!isQueueEmpty(queue))
+
+    Node *root = newNode(data);
+    enqueue(root);
+
+    while (!isEmpty())
     {
-        struct Node *current = dequeue(queue);
-        printf("Enter left child of %d (-1 for no node): ", current->data);
+        Node *curr = dequeue();
+
+        printf("Left of %d: ", curr->data);
         scanf("%d", &data);
         if (data != -1)
         {
-            current->left = createNode(data);
-            enqueue(queue, current->left);
+            curr->left = newNode(data);
+            enqueue(curr->left);
         }
-        printf("Enter right child of %d (-1 for no node): ", current->data);
+
+        printf("Right of %d: ", curr->data);
         scanf("%d", &data);
         if (data != -1)
         {
-            current->right = createNode(data);
-            enqueue(queue, current->right);
+            curr->right = newNode(data);
+            enqueue(curr->right);
         }
     }
-    free(queue);
     return root;
 }
-void preorderTraversal(struct Node *root)
+
+void preorder(Node *root)
 {
-    if (root)
-    {
-        printf("%d ", root->data);
-        preorderTraversal(root->left);
-        preorderTraversal(root->right);
-    }
+    if (!root)
+        return;
+    printf("%d ", root->data);
+    preorder(root->left);
+    preorder(root->right);
 }
-void inorderTraversal(struct Node *root)
+
+void inorder(Node *root)
 {
-    if (root)
-    {
-        inorderTraversal(root->left);
-        printf("%d ", root->data);
-        inorderTraversal(root->right);
-    }
+    if (!root)
+        return;
+    inorder(root->left);
+    printf("%d ", root->data);
+    inorder(root->right);
 }
-void postorderTraversal(struct Node *root)
+
+void postorder(Node *root)
 {
-    if (root)
-    {
-        postorderTraversal(root->left);
-        postorderTraversal(root->right);
-        printf("%d ", root->data);
-    }
+    if (!root)
+        return;
+    postorder(root->left);
+    postorder(root->right);
+    printf("%d ", root->data);
 }
+
 int main()
 {
-    struct Node *root = constructBinaryTree();
-    printf("Preorder Traversal: ");
-    preorderTraversal(root);
-    printf("\nInorder Traversal: ");
-    inorderTraversal(root);
-    printf("\nPostorder Traversal: ");
-    postorderTraversal(root);
-    printf("\n");
+    Node *root = constructTree();
+
+    printf("\nPreorder: ");
+    preorder(root);
+    printf("\nInorder: ");
+    inorder(root);
+    printf("\nPostorder: ");
+    postorder(root);
+
     return 0;
 }

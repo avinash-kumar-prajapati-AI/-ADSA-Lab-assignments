@@ -2,115 +2,59 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Node
+typedef struct Node
 {
     int data;
-    struct Node *left;
-    struct Node *right;
-};
+    struct Node *left, *right;
+} Node;
 
-struct QueueNode
+// Create node
+Node *newNode(int data)
 {
-    struct Node *treeNode;
-    struct QueueNode *next;
-};
-
-struct Queue
-{
-    struct QueueNode *front;
-    struct QueueNode *rear;
-};
-
-struct Queue *createQueue()
-{
-    struct Queue *queue = (struct Queue *)malloc(sizeof(struct Queue));
-    queue->front = NULL;
-    queue->rear = NULL;
-    return queue;
+    Node *n = (Node *)malloc(sizeof(Node));
+    n->data = data;
+    n->left = n->right = NULL;
+    return n;
 }
 
-int isQueueEmpty(struct Queue *queue)
-{
-    return queue->front == NULL;
-}
+// Simple array-based queue
+Node *queue[100];
+int front = 0, rear = 0;
 
-void enqueue(struct Queue *queue, struct Node *treeNode)
-{
-    struct QueueNode *newQueueNode = (struct QueueNode *)malloc(sizeof(struct QueueNode));
-    newQueueNode->treeNode = treeNode;
-    newQueueNode->next = NULL;
-    if (queue->rear)
-    {
-        queue->rear->next = newQueueNode;
-    }
-    queue->rear = newQueueNode;
-    if (!queue->front)
-    {
-        queue->front = newQueueNode;
-    }
-}
+void enqueue(Node *n) { queue[rear++] = n; }
+Node *dequeue() { return queue[front++]; }
+int isEmpty() { return front == rear; }
 
-struct Node *dequeue(struct Queue *queue)
+// Level-order traversal
+void levelOrder(Node *root)
 {
-    if (isQueueEmpty(queue))
-    {
-        return NULL;
-    }
-    struct QueueNode *temp = queue->front;
-    struct Node *treeNode = temp->treeNode;
-    queue->front = queue->front->next;
-    if (!queue->front)
-    {
-        queue->rear = NULL;
-    }
-    free(temp);
-    return treeNode;
-}
-
-struct Node *createNode(int data)
-{
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
-}
-
-void levelOrderTraversal(struct Node *root)
-{
-    if (root == NULL)
-    {
+    if (!root)
         return;
-    }
-    struct Queue *queue = createQueue();
-    enqueue(queue, root);
-    while (!isQueueEmpty(queue))
+
+    enqueue(root);
+    while (!isEmpty())
     {
-        struct Node *current = dequeue(queue);
-        printf("%d ", current->data);
-        if (current->left)
-        {
-            enqueue(queue, current->left);
-        }
-        if (current->right)
-        {
-            enqueue(queue, current->right);
-        }
+        Node *curr = dequeue();
+        printf("%d ", curr->data);
+
+        if (curr->left)
+            enqueue(curr->left);
+        if (curr->right)
+            enqueue(curr->right);
     }
-    free(queue);
 }
 
 int main()
 {
-    struct Node *root = createNode(1);
-    root->left = createNode(2);
-    root->right = createNode(3);
-    root->left->left = createNode(4);
-    root->left->right = createNode(5);
-    root->right->right = createNode(6);
+    Node *root = newNode(1);
+    root->left = newNode(2);
+    root->right = newNode(3);
+    root->left->left = newNode(4);
+    root->left->right = newNode(5);
+    root->right->right = newNode(6);
 
-    printf("Level-order traversal of the binary tree: ");
-    levelOrderTraversal(root);
+    printf("Level-order traversal: ");
+    levelOrder(root);
     printf("\n");
 
     return 0;

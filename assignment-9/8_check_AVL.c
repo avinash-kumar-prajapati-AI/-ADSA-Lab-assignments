@@ -3,72 +3,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Node
+typedef struct Node
 {
     int data;
-    struct Node *left;
-    struct Node *right;
-};
+    struct Node *left, *right;
+} Node;
 
-struct Node *createNode(int data)
+Node *newNode(int data)
 {
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+    Node *n = (Node *)malloc(sizeof(Node));
+    n->data = data;
+    n->left = n->right = NULL;
+    return n;
 }
 
-int max(int a, int b)
-{
-    return (a > b) ? a : b;
-}
+int max(int a, int b) { return a > b ? a : b; }
 
-int isAVLUtil(struct Node *node, int *isBalanced)
+int checkAVL(Node *root, int *ok)
 {
-    if (node == NULL)
-    {
+    if (!root)
         return 0;
-    }
 
-    int leftHeight = isAVLUtil(node->left, isBalanced);
-    int rightHeight = isAVLUtil(node->right, isBalanced);
+    int lh = checkAVL(root->left, ok);
+    int rh = checkAVL(root->right, ok);
 
-    int balanceFactor = leftHeight - rightHeight;
-    printf("Node %d: Balance Factor = %d\n", node->data, balanceFactor);
+    int bf = lh - rh;
+    printf("Node %d: Balance Factor = %d\n", root->data, bf);
 
-    if (balanceFactor < -1 || balanceFactor > 1)
-    {
-        *isBalanced = 0;
-    }
+    if (bf < -1 || bf > 1)
+        *ok = 0;
 
-    return 1 + max(leftHeight, rightHeight);
+    return 1 + max(lh, rh);
 }
 
-int isAVL(struct Node *root)
+int isAVL(Node *root)
 {
-    int isBalanced = 1;
-    isAVLUtil(root, &isBalanced);
-    return isBalanced;
+    int ok = 1;
+    checkAVL(root, &ok);
+    return ok;
 }
 
 int main()
 {
-    struct Node *root = createNode(30);
-    root->left = createNode(20);
-    root->right = createNode(40);
-    root->left->left = createNode(10);
-    root->left->right = createNode(25);
-    root->right->right = createNode(50);
+    Node *root = newNode(30);
+    root->left = newNode(20);
+    root->right = newNode(40);
+    root->left->left = newNode(10);
+    root->left->right = newNode(25);
+    root->right->right = newNode(50);
 
-    if (isAVL(root))
-    {
-        printf("The tree is height-balanced (AVL).\n");
-    }
-    else
-    {
-        printf("The tree is not height-balanced (not AVL).\n");
-    }
-
+    printf("The tree is %sAVL.\n", isAVL(root) ? "" : "not ");
     return 0;
 }

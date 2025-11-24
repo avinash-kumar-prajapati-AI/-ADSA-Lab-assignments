@@ -1,62 +1,58 @@
 // 5. Insert nodes into a Binary Search Tree (BST) and display its inorder traversal.
 #include <stdio.h>
 #include <stdlib.h>
-struct Node
+
+typedef struct Node
 {
     int data;
-    struct Node *left;
-    struct Node *right;
-};
-struct Node *createNode(int data)
+    struct Node *left, *right;
+} Node;
+
+Node *newNode(int data)
 {
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+    Node *n = (Node *)malloc(sizeof(Node));
+    n->data = data;
+    n->left = n->right = NULL;
+    return n;
 }
 
-struct Node *insert(struct Node *root, int data)
+Node *insert(Node *root, int data)
 {
-    if (root == NULL)
-    {
-        return createNode(data);
-    }
+    if (!root)
+        return newNode(data);
     if (data < root->data)
-    {
         root->left = insert(root->left, data);
-    }
     else
-    {
         root->right = insert(root->right, data);
-    }
     return root;
 }
 
-void inorderTraversal(struct Node *root)
+void inorder(Node *root)
 {
-    if (root != NULL)
-    {
-        inorderTraversal(root->left);
-        printf("%d ", root->data);
-        inorderTraversal(root->right);
-    }
+    if (!root)
+        return;
+    inorder(root->left);
+    printf("%d ", root->data);
+    inorder(root->right);
 }
 
 int main()
 {
-    struct Node *root = NULL;
+    Node *root = NULL;
     int n, data;
-    printf("Enter the number of nodes to insert: ");
+
+    printf("Enter number of nodes: ");
     scanf("%d", &n);
-    for (int i = 0; i < n; i++)
+
+    while (n--)
     {
-        printf("Enter value for node %d: ", i + 1);
         scanf("%d", &data);
         root = insert(root, data);
     }
-    printf("Inorder Traversal of the BST: ");
-    inorderTraversal(root);
+
+    printf("Inorder Traversal: ");
+    inorder(root);
     printf("\n");
+
     return 0;
 }

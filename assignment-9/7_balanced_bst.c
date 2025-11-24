@@ -3,75 +3,69 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct Node
+typedef struct Node
 {
     int data;
-    struct Node *left;
-    struct Node *right;
-};
+    struct Node *left, *right;
+} Node;
 
-struct Node *createNode(int data)
+Node *newNode(int data)
 {
-    struct Node *newNode = (struct Node *)malloc(sizeof(struct Node));
-    newNode->data = data;
-    newNode->left = NULL;
-    newNode->right = NULL;
-    return newNode;
+    Node *n = (Node *)malloc(sizeof(Node));
+    n->data = data;
+    n->left = n->right = NULL;
+    return n;
 }
 
-struct Node *sortedArrayToBST(int arr[], int start, int end)
+// Build balanced BST
+Node *buildBST(int arr[], int l, int r)
 {
-    if (start > end)
-    {
+    if (l > r)
         return NULL;
-    }
-    int mid = start + (end - start) / 2;
-    struct Node *node = createNode(arr[mid]);
-    node->left = sortedArrayToBST(arr, start, mid - 1);
-    node->right = sortedArrayToBST(arr, mid + 1, end);
-    return node;
+    int m = (l + r) / 2;
+    Node *root = newNode(arr[m]);
+    root->left = buildBST(arr, l, m - 1);
+    root->right = buildBST(arr, m + 1, r);
+    return root;
 }
 
-void levelOrderTraversal(struct Node *root)
+// Level order traversal
+void levelOrder(Node *root)
 {
-    if (root == NULL)
-    {
+    if (!root)
         return;
-    }
-    struct Node **queue = (struct Node **)malloc(100 * sizeof(struct Node *));
-    int front = 0, rear = 0;
-    queue[rear++] = root;
-    while (front < rear)
+
+    Node *q[100];
+    int f = 0, r = 0;
+    q[r++] = root;
+
+    while (f < r)
     {
-        struct Node *current = queue[front++];
-        printf("%d ", current->data);
-        if (current->left)
-        {
-            queue[rear++] = current->left;
-        }
-        if (current->right)
-        {
-            queue[rear++] = current->right;
-        }
+        Node *curr = q[f++];
+        printf("%d ", curr->data);
+        if (curr->left)
+            q[r++] = curr->left;
+        if (curr->right)
+            q[r++] = curr->right;
     }
-    free(queue);
 }
 
 int main()
 {
     int n;
-    printf("Enter the number of elements in the sorted array: ");
+    printf("Enter array size: ");
     scanf("%d", &n);
+
     int *arr = (int *)malloc(n * sizeof(int));
-    printf("Enter the elements of the sorted array:\n");
     for (int i = 0; i < n; i++)
-    {
         scanf("%d", &arr[i]);
-    }
-    struct Node *root = sortedArrayToBST(arr, 0, n - 1);
-    printf("Level-order traversal of the balanced BST: ");
-    levelOrderTraversal(root);
+
+    Node *root = buildBST(arr, 0, n - 1);
+
+    printf("Level-order traversal: ");
+    levelOrder(root);
     printf("\n");
+
     free(arr);
     return 0;
 }
